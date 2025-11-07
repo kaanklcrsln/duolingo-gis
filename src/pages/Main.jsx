@@ -16,6 +16,12 @@ const Main = () => {
   const mapInstanceRef = useRef(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [selectedCountries, setSelectedCountries] = useState(new Set());
+  const [lastSelectedFeature, setLastSelectedFeature] = useState(null);
+  const vectorSourceRef = useRef(null);
+  const vectorLayerRef = useRef(null);
+  let highlightFeature = null;
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
@@ -34,6 +40,30 @@ const Main = () => {
     console.log('Options clicked');
   };
 
+  const handleCountryClick = (feature, countryName) => {
+    // Önceki seçimi kaldır
+    if (lastSelectedFeature) {
+      lastSelectedFeature.setStyle(undefined);
+    }
+    
+    // Yeni ülkeyi seç
+    setSelectedCountry(countryName);
+    setSelectedCountries(new Set([countryName]));
+    setLastSelectedFeature(feature);
+    
+    // Tıklanan ülkeyi yeşil renge boyala
+    const selectedStyle = new Style({
+      stroke: new Stroke({
+        color: '#89e219',
+        width: 3
+      }),
+      fill: new Fill({
+        color: 'rgba(137, 226, 25, 0.8)'
+      })
+    });
+    feature.setStyle(selectedStyle);
+  };
+
   useEffect(() => {
     if (!mapRef.current) return;
 
@@ -42,6 +72,7 @@ const Main = () => {
       url: './databases/maps/custom.geo.json',
       format: new GeoJSON()
     });
+    vectorSourceRef.current = vectorSource;
 
     const vectorLayer = new VectorLayer({
       source: vectorSource,
@@ -55,6 +86,7 @@ const Main = () => {
         })
       })
     });
+    vectorLayerRef.current = vectorLayer;
 
     // OpenLayers harita oluştur
     const map = new Map({
@@ -75,7 +107,7 @@ const Main = () => {
     });
 
     // Mouse hover event'i ekle
-    let highlightFeature = null;
+    let hoverFeature = null;
     const highlightStyle = new Style({
       stroke: new Stroke({
         color: '#89e219',
@@ -87,14 +119,31 @@ const Main = () => {
     });
 
     map.on('pointermove', (evt) => {
-      if (highlightFeature) {
-        highlightFeature.setStyle(undefined);
-        highlightFeature = null;
+      if (hoverFeature) {
+        const countryName = hoverFeature.get('name');
+        // Hover'dan çıkarken, eğer seçili değilse orijinal stili geri yükle
+        if (selectedCountry !== countryName) {
+          hoverFeature.setStyle(undefined);
+        }
+        hoverFeature = null;
       }
 
       map.forEachFeatureAtPixel(evt.pixel, (feature) => {
-        highlightFeature = feature;
-        feature.setStyle(highlightStyle);
+        hoverFeature = feature;
+        const countryName = feature.get('name');
+        // Seçili değilse hover stilini uygula
+        if (selectedCountry !== countryName) {
+          feature.setStyle(highlightStyle);
+        }
+        return true;
+      });
+    });
+
+    // Click event'i ekle
+    map.on('click', (evt) => {
+      map.forEachFeatureAtPixel(evt.pixel, (feature) => {
+        const countryName = feature.get('name');
+        handleCountryClick(feature, countryName);
         return true;
       });
     });
@@ -107,7 +156,7 @@ const Main = () => {
         mapInstanceRef.current.setTarget(null);
       }
     };
-  }, []);
+  }, [selectedCountry]);
 
   return (
     <div className={`main-page ${isDarkMode ? 'dark-mode' : ''}`}>
@@ -172,7 +221,32 @@ const Main = () => {
               </div>
             </div>
           ) : (
-            <div className="placeholder-text">Sol Panel</div>
+            <>
+              {selectedCountry ? (
+                <div className="flag-game">
+                  <h3>Bu ülkenin bayrağı hangisidir?</h3>
+                  <p className="selected-country">{selectedCountry}</p>
+                  <div className="flag-options">
+                    <div className="flag-box">
+                      <img src="/images/flags/default1.svg" alt="Flag 1" />
+                    </div>
+                    <div className="flag-box">
+                      <img src="/images/flags/default2.svg" alt="Flag 2" />
+                    </div>
+                    <div className="flag-box">
+                      <img src="/images/flags/default3.svg" alt="Flag 3" />
+                    </div>
+                    <div className="flag-box">
+                      <img src="/images/flags/default4.svg" alt="Flag 4" />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="placeholder-text">
+                  <p>Haritada bir ülkeye tıklayarak başla!</p>
+                </div>
+              )}
+            </>
           )}
         </div>
         <div className="hover-container center-panel">
