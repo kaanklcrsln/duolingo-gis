@@ -23,6 +23,7 @@ const Main = () => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [isAnswerChecked, setIsAnswerChecked] = useState(false);
   const [checkState, setCheckState] = useState('unchecked'); // 'unchecked', 'checked', 'correct', 'incorrect'
+  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
   const vectorSourceRef = useRef(null);
   const vectorLayerRef = useRef(null);
   let highlightFeature = null;
@@ -104,6 +105,14 @@ const Main = () => {
     console.log('Options clicked');
   };
 
+  const handleTitleClick = () => {
+    setShowWelcomeModal(true);
+  };
+
+  const closeWelcomeModal = () => {
+    setShowWelcomeModal(false);
+  };
+
   useEffect(() => {
     if (!mapRef.current) return;
 
@@ -182,8 +191,14 @@ const Main = () => {
   }, []);
 
   return (
-    <div className={`main-page ${isDarkMode ? 'dark-mode' : ''}`}>
+    <div className={`main-page ${isDarkMode ? 'dark-mode' : ''} ${showWelcomeModal ? 'modal-open' : ''}`}>
       <div className="top-bar">
+        <div className="title-section">
+          <h1 className="app-title" onClick={handleTitleClick}>
+            <span className="duolingo-text">duolingo</span>
+            <span className="gis-text">GIS</span>
+          </h1>
+        </div>
         <div className="stats-container">
           <div className="stat-item">
             <img src="/assets/images/components/streak_button.svg" alt="Streak" className="stat-icon" />
@@ -379,6 +394,39 @@ const Main = () => {
           <div ref={mapRef} className="map-container"></div>
         </div>
       </div>
+
+      {/* Welcome Modal */}
+      {showWelcomeModal && (
+        <div className="welcome-modal-overlay" onClick={closeWelcomeModal}>
+          <div className="welcome-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close-btn" onClick={closeWelcomeModal}>×</button>
+            
+            {/* Developer Section */}
+            <div className="developer-section">
+              <img src="/images/players/kaan.svg" alt="Kaan Kılıçarslan" className="developer-image" />
+              <div className="developer-info">
+                <h3 className="developer-name">Kaan Kılıçarslan</h3>
+                <p className="developer-username">@kaanklcrsln</p>
+                <p className="developer-title">Geomatics Engineer</p>
+              </div>
+            </div>
+
+            {/* Welcome Content */}
+            <div className="welcome-content">
+              <h2 className="welcome-title">Welcome to my project geolover!</h2>
+              <p className="welcome-description">
+                You can play flag quiz games for each continent by selecting sections and choosing levels. 
+                Test your geography knowledge and learn about countries and their flags!
+              </p>
+            </div>
+
+            {/* Duo Character */}
+            <div className="duo-character">
+              <img src="/images/duo/duo.png" alt="Duo" className="duo-image" />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
