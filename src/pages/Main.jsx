@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+﻿import React, { useEffect, useRef, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Map from 'ol/Map';
 import View from 'ol/View';
@@ -23,9 +23,6 @@ const Main = () => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [isAnswerChecked, setIsAnswerChecked] = useState(false);
   const [checkState, setCheckState] = useState('unchecked'); // 'unchecked', 'checked', 'correct', 'incorrect'
-  const [selectedCountry, setSelectedCountry] = useState(null);
-  const [selectedCountries, setSelectedCountries] = useState(new Set());
-  const [lastSelectedFeature, setLastSelectedFeature] = useState(null);
   const vectorSourceRef = useRef(null);
   const vectorLayerRef = useRef(null);
   let highlightFeature = null;
@@ -93,6 +90,9 @@ const Main = () => {
 
   const handleHomeClick = () => {
     setShowLeaderboard(false);
+    setGameStarted(false);
+    setSelectedAnswer(null);
+    setIsAnswerChecked(false);
   };
 
   const handleLeadershipClick = () => {
@@ -102,30 +102,6 @@ const Main = () => {
   const handleOptionsClick = () => {
     // Bu fonksiyonu sonra ekleyeceğiz
     console.log('Options clicked');
-  };
-
-  const handleCountryClick = (feature, countryName) => {
-    // Önceki seçimi kaldır
-    if (lastSelectedFeature) {
-      lastSelectedFeature.setStyle(undefined);
-    }
-    
-    // Yeni ülkeyi seç
-    setSelectedCountry(countryName);
-    setSelectedCountries(new Set([countryName]));
-    setLastSelectedFeature(feature);
-    
-    // Tıklanan ülkeyi yeşil renge boyala
-    const selectedStyle = new Style({
-      stroke: new Stroke({
-        color: '#89e219',
-        width: 3
-      }),
-      fill: new Fill({
-        color: 'rgba(137, 226, 25, 0.8)'
-      })
-    });
-    feature.setStyle(selectedStyle);
   };
 
   useEffect(() => {
@@ -184,30 +160,13 @@ const Main = () => {
 
     map.on('pointermove', (evt) => {
       if (hoverFeature) {
-        const countryName = hoverFeature.get('name');
-        // Hover'dan çıkarken, eğer seçili değilse orijinal stili geri yükle
-        if (selectedCountry !== countryName) {
-          hoverFeature.setStyle(undefined);
-        }
+        hoverFeature.setStyle(undefined);
         hoverFeature = null;
       }
 
       map.forEachFeatureAtPixel(evt.pixel, (feature) => {
         hoverFeature = feature;
-        const countryName = feature.get('name');
-        // Seçili değilse hover stilini uygula
-        if (selectedCountry !== countryName) {
-          feature.setStyle(highlightStyle);
-        }
-        return true;
-      });
-    });
-
-    // Click event'i ekle
-    map.on('click', (evt) => {
-      map.forEachFeatureAtPixel(evt.pixel, (feature) => {
-        const countryName = feature.get('name');
-        handleCountryClick(feature, countryName);
+        feature.setStyle(highlightStyle);
         return true;
       });
     });
@@ -220,7 +179,7 @@ const Main = () => {
         mapInstanceRef.current.setTarget(null);
       }
     };
-  }, [selectedCountry]);
+  }, []);
 
   return (
     <div className={`main-page ${isDarkMode ? 'dark-mode' : ''}`}>
@@ -296,108 +255,82 @@ const Main = () => {
             </div>
           ) : (
             <>
-              {selectedCountry ? (
-                <div className="flag-game">
-                  <h3>Bu ülkenin bayrağı hangisidir?</h3>
-                  <p className="selected-country">{selectedCountry}</p>
-                  <div className="flag-options">
-                    <div className="flag-box">
-                      <img src="/images/flags/default1.svg" alt="Flag 1" />
+              {!gameStarted ? (
+                <div className="level-path-container">
+                  {/* Header 2 - Top Level */}
+                  <div className={`level-section ${openSection === 'header2' ? 'open' : ''}`}>
+                    <div className="header-wrapper" onClick={() => toggleSection('header2')}>
+                      <img src="/images/players/blonde-kid.svg" alt="Blonde Kid" className="character-image" />
+                      <img src="/images/duo/level_path/Header (2).png" alt="Header 2" className="header-image" />
                     </div>
-                    <div className="flag-box">
-                      <img src="/images/flags/default2.svg" alt="Flag 2" />
+                    {openSection === 'header2' && (
+                      <div className="level-content">
+                        <button className="level-button div-button" title="Div Challenge" onClick={() => startLevel('header2')}>
+                          <img src="/images/duo/level_path/div.png" alt="Div" />
+                        </button>
+                        <button className="level-button story-button" title="Story 1">
+                          <img src="/images/duo/level_path/Story.png" alt="Story 1" />
+                        </button>
+                        <button className="level-button story-button" title="Story 2">
+                          <img src="/images/duo/level_path/Story.png" alt="Story 2" />
+                        </button>
+                        <button className="level-button story-button" title="Story 3">
+                          <img src="/images/duo/level_path/Story.png" alt="Story 3" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Header 1 - Bottom Level */}
+                  <div className={`level-section ${openSection === 'header1' ? 'open' : ''}`}>
+                    <div className="header-wrapper" onClick={() => toggleSection('header1')}>
+                      <img src="/images/players/afro-woman.svg" alt="Afro Woman" className="character-image" />
+                      <img src="/images/duo/level_path/Header (1).png" alt="Header 1" className="header-image" />
                     </div>
-                    <div className="flag-box">
-                      <img src="/images/flags/default3.svg" alt="Flag 3" />
+                    {openSection === 'header1' && (
+                      <div className="level-content">
+                        <button className="level-button div-button" title="Div Challenge" onClick={() => startLevel('header1')}>
+                          <img src="/images/duo/level_path/div.png" alt="Div" />
+                        </button>
+                        <button className="level-button story-button" title="Story 1">
+                          <img src="/images/duo/level_path/Story.png" alt="Story 1" />
+                        </button>
+                        <button className="level-button story-button" title="Story 2">
+                          <img src="/images/duo/level_path/Story.png" alt="Story 2" />
+                        </button>
+                        <button className="level-button story-button" title="Story 3">
+                          <img src="/images/duo/level_path/Story.png" alt="Story 3" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Header - Final Level */}
+                  <div className={`level-section ${openSection === 'header' ? 'open' : ''}`}>
+                    <div className="header-wrapper" onClick={() => toggleSection('header')}>
+                      <img src="/images/players/purple-girl.svg" alt="Purple Girl" className="character-image" />
+                      <img src="/images/duo/level_path/Header.png" alt="Header" className="header-image" />
                     </div>
-                    <div className="flag-box">
-                      <img src="/images/flags/default4.svg" alt="Flag 4" />
-                    </div>
+                    {openSection === 'header' && (
+                      <div className="level-content">
+                        <button className="level-button div-button" title="Div Challenge" onClick={() => startLevel('header')}>
+                          <img src="/images/duo/level_path/div.png" alt="Div" />
+                        </button>
+                        <button className="level-button story-button" title="Story 1">
+                          <img src="/images/duo/level_path/Story.png" alt="Story 1" />
+                        </button>
+                        <button className="level-button story-button" title="Story 2">
+                          <img src="/images/duo/level_path/Story.png" alt="Story 2" />
+                        </button>
+                        <button className="level-button story-button" title="Story 3">
+                          <img src="/images/duo/level_path/Story.png" alt="Story 3" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (
-                <>
-                  {!gameStarted ? (
-                    <div className="level-path-container">
-                      {/* Header 2 - Top Level */}
-                      <div className={`level-section ${openSection === 'header2' ? 'open' : ''}`}>
-                        <div className="header-wrapper" onClick={() => toggleSection('header2')}>
-                          <img src="/images/players/blonde-kid.svg" alt="Blonde Kid" className="character-image" />
-                          <img src="/images/duo/level_path/Header (2).png" alt="Header 2" className="header-image" />
-                        </div>
-                        {openSection === 'header2' && (
-                          <div className="level-content">
-                          <button className="level-button div-button" title="Div Challenge" onClick={() => startLevel('header2')}>
-                            <img src="/images/duo/level_path/div.png" alt="Div" />
-                          </button>
-                          <button className="level-button story-button" title="Story 1">
-                            <img src="/images/duo/level_path/Story.png" alt="Story 1" />
-                          </button>
-                          <button className="level-button story-button" title="Story 2">
-                            <img src="/images/duo/level_path/Story.png" alt="Story 2" />
-                          </button>
-                          <button className="level-button story-button" title="Story 3">
-                            <img src="/images/duo/level_path/Story.png" alt="Story 3" />
-    
-
-                          </button>
-                        </div>
-                        )}
-                      </div>
-
-                      {/* Header 1 - Bottom Level */}
-                      <div className={`level-section ${openSection === 'header1' ? 'open' : ''}`}>
-                        <div className="header-wrapper" onClick={() => toggleSection('header1')}>
-                          <img src="/images/players/afro-woman.svg" alt="Afro Woman" className="character-image" />
-                          <img src="/images/duo/level_path/Header (1).png" alt="Header 1" className="header-image" />
-                        </div>
-                        {openSection === 'header1' && (
-                          <div className="level-content">
-                          <button className="level-button div-button" title="Div Challenge" onClick={() => startLevel('header1')}>
-                            <img src="/images/duo/level_path/div.png" alt="Div" />
-                          </button>
-                          <button className="level-button story-button" title="Story 1">
-                            <img src="/images/duo/level_path/Story.png" alt="Story 1" />
-                          </button>
-                          <button className="level-button story-button" title="Story 2">
-                            <img src="/images/duo/level_path/Story.png" alt="Story 2" />
-                          </button>
-                          <button className="level-button story-button" title="Story 3">
-                            <img src="/images/duo/level_path/Story.png" alt="Story 3" />
-                          </button>
-
-
-                        </div>
-                        )}
-                      </div>
-
-                      {/* Header - Final Level */}
-                      <div className={`level-section ${openSection === 'header' ? 'open' : ''}`}>
-                        <div className="header-wrapper" onClick={() => toggleSection('header')}>
-                          <img src="/images/players/purple-girl.svg" alt="Purple Girl" className="character-image" />
-                          <img src="/images/duo/level_path/Header.png" alt="Header" className="header-image" />
-                        </div>
-                        {openSection === 'header' && (
-                          <div className="level-content">
-                          <button className="level-button div-button" title="Div Challenge" onClick={() => startLevel('header')}>
-                            <img src="/images/duo/level_path/div.png" alt="Div" />
-                          </button>
-                          <button className="level-button story-button" title="Story 1">
-                            <img src="/images/duo/level_path/Story.png" alt="Story 1" />
-                          </button>
-                          <button className="level-button story-button" title="Story 2">
-                            <img src="/images/duo/level_path/Story.png" alt="Story 2" />
-                          </button>
-                          <button className="level-button story-button" title="Story 3">
-                            <img src="/images/duo/level_path/Story.png" alt="Story 3" />
-                          </button>
-                        </div>
-                        )}
-                      </div>
-
-                    </div>
-                  ) : (
-                    <div className="game-ui">
+                <div className="game-ui">
                       {/* Soru Kısımı */}
                       <div className="question-section">
                         <img src="/images/duo/Image & Audio.png" alt="Question" className="question-image" />
@@ -438,8 +371,6 @@ const Main = () => {
                       </div>
                     </div>
                   )}
-                </>
-              )}
             </>
           )}
         </div>
