@@ -12,7 +12,7 @@ https://github.com/user-attachments/assets/e6b79fb0-829b-4462-b309-9f9bfa13b731
 ---
 ![DuoGIS Interface](https://github.com/user-attachments/assets/3bca5ec1-caab-4411-95bd-bbd9c14b7738)
 
-<img width="569" height="1035" alt="1" src="https://github.com/user-attachments/assets/a4cf14e6-38e5-48c1-831b-e0182b7b7885" /> <img width="569" height="1035" alt="1" src="https://github.com/user-attachments/assets/de708cbf-fe71-4e16-a5ee-c145f4aa24ed" />
+<img width="1920" height="1080" alt="Comp 1_00000" src="https://github.com/user-attachments/assets/6c9a98e3-2941-4aa1-ace5-dc09db3bc41b" />
 
 
 
