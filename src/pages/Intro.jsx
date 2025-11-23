@@ -8,6 +8,7 @@ const Intro = () => {
   const [showIntroVideo, setShowIntroVideo] = useState(false);
   const [showCharacterSelection, setShowCharacterSelection] = useState(false);
   const [selectedCharacter, setSelectedCharacter] = useState(null);
+  const [username, setUsername] = useState('');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [contentFadedOut, setContentFadedOut] = useState(false);
   const navigate = useNavigate();
@@ -53,11 +54,20 @@ const Intro = () => {
   };
 
   const handleStartGame = () => {
-    navigate('/main');
+    if (selectedCharacter && username.trim()) {
+      // Pass character and username data
+      navigate('/main', { 
+        state: { 
+          selectedCharacter, 
+          username: username.trim() 
+        } 
+      });
+    }
   };
 
-  const handleContinueToMain = () => {
-    navigate('/main');
+  const handleTryAgain = () => {
+    setSelectedCharacter(null);
+    setUsername('');
   };
 
   return (
@@ -92,40 +102,79 @@ const Intro = () => {
           </video>
           
           {showCharacterSelection && (
-            <div className="character-selection">
-              <div className="character-grid">
-                <div 
-                  className={`character-option ${selectedCharacter === 'wine-guy' ? 'selected' : ''}`}
-                  onClick={() => handleCharacterSelect('wine-guy')}
-                >
-                  <img src="/images/players/wine-guy.svg" alt="Wine Guy" />
-                </div>
-                <div 
-                  className={`character-option ${selectedCharacter === 'purple-girl' ? 'selected' : ''}`}
-                  onClick={() => handleCharacterSelect('purple-girl')}
-                >
-                  <img src="/images/players/purple-girl.svg" alt="Purple Girl" />
-                </div>
-                <div 
-                  className={`character-option ${selectedCharacter === 'blonde-kid' ? 'selected' : ''}`}
-                  onClick={() => handleCharacterSelect('blonde-kid')}
-                >
-                  <img src="/images/players/blonde-kid.svg" alt="Blonde Kid" />
-                </div>
-                <div 
-                  className={`character-option ${selectedCharacter === 'afro-woman' ? 'selected' : ''}`}
-                  onClick={() => handleCharacterSelect('afro-woman')}
-                >
-                  <img src="/images/players/afro-woman.svg" alt="Afro Woman" />
-                </div>
-              </div>
-              
+            <>
+              {/* Karakter seçildiğinde büyük karakter önizlemesi arkaplanda */}
               {selectedCharacter && (
-                <button className="start-game-btn" onClick={handleStartGame}>
-                  Start
-                </button>
+                <>
+                  <div className="character-preview-background"></div>
+                  <div className="character-preview-large">
+                    <img src={`/images/players/${selectedCharacter}.svg`} alt="Selected Character Background" />
+                  </div>
+                </>
               )}
-            </div>
+              
+              <div className="character-selection">
+                <div className="character-grid">
+                  <div 
+                    className={`character-option ${selectedCharacter === 'wine-guy' ? 'selected' : ''}`}
+                    onClick={() => handleCharacterSelect('wine-guy')}
+                  >
+                    <img src="/images/players/wine-guy.svg" alt="Wine Guy" />
+                  </div>
+                  <div 
+                    className={`character-option ${selectedCharacter === 'purple-girl' ? 'selected' : ''}`}
+                    onClick={() => handleCharacterSelect('purple-girl')}
+                  >
+                    <img src="/images/players/purple-girl.svg" alt="Purple Girl" />
+                  </div>
+                  <div 
+                    className={`character-option ${selectedCharacter === 'blonde-kid' ? 'selected' : ''}`}
+                    onClick={() => handleCharacterSelect('blonde-kid')}
+                  >
+                    <img src="/images/players/blonde-kid.svg" alt="Blonde Kid" />
+                  </div>
+                  <div 
+                    className={`character-option ${selectedCharacter === 'afro-woman' ? 'selected' : ''}`}
+                    onClick={() => handleCharacterSelect('afro-woman')}
+                  >
+                    <img src="/images/players/afro-woman.svg" alt="Afro Woman" />
+                  </div>
+                </div>
+                
+                {selectedCharacter && (
+                  <div className="character-preview-section">
+                    <div className="character-preview">
+                      <img src={`/images/players/${selectedCharacter}.svg`} alt="Selected Character" />
+                    </div>
+                    <div className="username-input-section">
+                      <input
+                        type="text"
+                        placeholder="Enter your username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="username-input"
+                        maxLength="20"
+                      />
+                    </div>
+                    <div className="button-group">
+                      <button 
+                        className={`start-game-btn ${!username.trim() ? 'disabled' : ''}`} 
+                        onClick={handleStartGame}
+                        disabled={!username.trim()}
+                      >
+                        Start
+                      </button>
+                      <button 
+                        className="try-again-btn"
+                        onClick={handleTryAgain}
+                      >
+                        Try Again
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
           )}
         </div>
       )}

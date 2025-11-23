@@ -361,24 +361,25 @@
 /* Dark Mode Toggle */
 .dark-mode-toggle {
   position: fixed;
-  bottom: 100px;
-  right: 20px;
+  bottom: 10px;
+  right: 10px;
   width: 50px;
   height: 50px;
-  background: linear-gradient(135deg, #89e219, #5cd65c);
+  background: transparent;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(137, 226, 25, 0.3);
+  box-shadow: none;
   transition: all 0.3s ease;
   z-index: 100;
+  border: none;
 }
 
 .dark-mode-toggle:hover {
   transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(137, 226, 25, 0.4);
+  box-shadow: none;
 }
 
 .dark-mode-icon {
@@ -1360,10 +1361,16 @@
   width: 100%; /* Left bar genişliği kadar */
   height: auto; /* Oranlı boyutlandırma */
   position: absolute;
-  bottom: 60px;
-  left: 50%;
-  transform: translateX(-80%);
+  bottom: 0;
+  left: 0;
   z-index: 1000;
+}
+
+.result-message img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
 }
 
 /* Intro Video Styles */

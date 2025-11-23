@@ -1,4 +1,5 @@
 ﻿import React, { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Map from 'ol/Map';
 import View from 'ol/View';
@@ -13,9 +14,14 @@ import './Main.css';
 import { countryData, getFlagUrl, getRandomCountries, getRandomCountry } from '../data/countryData';
 
 const Main = () => {
+  const location = useLocation();
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [userProfile, setUserProfile] = useState({
+    character: location.state?.selectedCharacter || 'blonde-kid',
+    username: location.state?.username || 'Guest'
+  });
   const [isClosing, setIsClosing] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
